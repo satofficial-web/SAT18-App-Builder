@@ -1,0 +1,5 @@
+{
+  "name": "SAT18 App Builder",
+  "description": "A web-based interface to streamline the process of building Android APKs from web projects using Capacitor and Gradle. Configure your app, view real-time build logs, and get your APK ready for distribution.",
+  "requestFramePermissions": []
+}

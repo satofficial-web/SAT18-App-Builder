@@ -1,79 +1,55 @@
-
 import React from 'react';
-import { CheckCircleIcon } from './icons/CheckCircleIcon';
-import { CogIcon } from './icons/CogIcon';
-import { ShieldCheckIcon } from './icons/ShieldCheckIcon';
+import { BuildStatus } from '../types';
 
-interface ActionButtonsProps {
-  onCheckEnv: () => void;
-  onBuild: () => void;
-  isCheckingEnv: boolean;
-  isBuilding: boolean;
-  isEnvOk: boolean;
-  isConfigReady: boolean;
+interface Props {
+  status: BuildStatus;
+  start: () => void;
+  cancel: () => void;
+  clear: () => void;
+  canDownload?: boolean;
+  onDownload?: () => void;
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ onCheckEnv, onBuild, isCheckingEnv, isBuilding, isEnvOk, isConfigReady }) => {
-  const isBusy = isCheckingEnv || isBuilding;
+const baseButtonClass = "px-4 py-2 rounded-md font-semibold text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+
+export const ActionButtons: React.FC<Props> = ({ status, start, cancel, clear, canDownload, onDownload }) => {
+  const isIdle = status === 'idle' || status === 'completed' || status === 'error' || status === 'cancelled';
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start space-x-3 bg-gray-700/50 p-4 rounded-lg">
-        <ShieldCheckIcon className={`h-6 w-6 mt-1 flex-shrink-0 ${isEnvOk ? 'text-green-400' : 'text-yellow-400'}`} />
-        <div>
-            <h3 className="text-base font-semibold">Environment Check</h3>
-            <p className="text-sm text-gray-400 mt-1">
-                Verify that Node.js, JDK, and Android SDK are correctly installed and configured before building.
-            </p>
-            <button
-                onClick={onCheckEnv}
-                disabled={isBusy}
-                className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed"
-            >
-                {isCheckingEnv ? (
-                    <>
-                        <CogIcon className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                        Checking...
-                    </>
-                ) : isEnvOk ? (
-                     <>
-                        <CheckCircleIcon className="-ml-1 mr-2 h-5 w-5" />
-                        Environment OK
-                    </>
-                ) : (
-                    "Check Environment"
-                )}
-            </button>
-        </div>
-      </div>
-      
-      <div className="flex items-start space-x-3 bg-gray-700/50 p-4 rounded-lg">
-          <CogIcon className={`h-6 w-6 mt-1 flex-shrink-0 ${isBuilding ? 'animate-spin text-cyan-400' : 'text-cyan-500'}`} />
-          <div>
-            <h3 className="text-base font-semibold">Build APK</h3>
-            <p className="text-sm text-gray-400 mt-1">
-                Once the environment is verified and configuration is set, start the build process to generate the APK.
-            </p>
-            <button
-                onClick={onBuild}
-                disabled={!isEnvOk || isBusy || !isConfigReady}
-                className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed"
-            >
-                {isBuilding ? (
-                    <>
-                        <CogIcon className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                        Building...
-                    </>
-                ) : (
-                    "Build APK"
-                )}
-            </button>
-            {!isConfigReady && <p className="text-xs text-yellow-400 mt-2">Please provide a web project .zip to enable building.</p>}
-            {!isEnvOk && <p className="text-xs text-yellow-400 mt-2">Please run a successful environment check first.</p>}
-          </div>
-      </div>
+    <div className="flex gap-3 items-center flex-wrap">
+      {isIdle && (
+        <button 
+            onClick={start} 
+            className={`${baseButtonClass} bg-cyan-600 hover:bg-cyan-700 text-white focus:ring-cyan-500`}
+        >
+          ▶ Mulai Build (Simulasi)
+        </button>
+      )}
+
+      {status === 'running' && (
+        <button 
+            onClick={cancel} 
+            className={`${baseButtonClass} bg-red-600 hover:bg-red-700 text-white focus:ring-red-500`}
+        >
+          ✖ Batalkan
+        </button>
+      )}
+
+      <button 
+        onClick={clear} 
+        className={`${baseButtonClass} bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500`}
+      >
+        🧹 Bersihkan Log
+      </button>
+
+      {canDownload && onDownload && isIdle && (
+        <button 
+            onClick={onDownload} 
+            className={`${baseButtonClass} bg-green-600 hover:bg-green-700 text-white focus:ring-green-500`}
+        >
+          ⬇ Download APK
+        </button>
+      )}
     </div>
   );
 };
-
-export default ActionButtons;
